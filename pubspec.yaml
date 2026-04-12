@@ -30,6 +30,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    # Quản lý trạng thái, chuyển trang (Route) và Snackbar/Dialog nhanh
+  get: ^4.6.6
+
+  # Gọi API từ OPhim 
+  dio: ^5.4.1
+
+  # Trình phát video 
+  chewie: ^1.7.1
+  video_player: ^2.8.1
+
+  # Lưu trữ dữ liệu nội bộ như Phim yêu thích, Lịch sử 
+  shared_preferences: ^2.2.2
+
+  # Hiển thị ảnh từ URL của OPhim nhanh và có cache
+  cached_network_image: ^3.3.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
