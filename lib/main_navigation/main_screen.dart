@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nhom4/features/home_feature/screens/home_screen.dart';
 import 'main_controller.dart';
 // Import 4 màn hình chính của 4 bạn
 // import '../features/home_feature/screens/home_screen.dart';
@@ -9,7 +10,7 @@ class MainNavigationScreen extends StatelessWidget {
 
   // Danh sách 4 màn hình đại diện cho 4 Tab
   final List<Widget> screens = [
-    Center(child: Text("Home - Thành viên 1")),  
+    HomeScreen(),  
     Center(child: Text("Browse - Thành viên 2")),
     Center(child: Text("Library - Thành viên 3")),
     Center(child: Text("Profile - Thành viên 4")),
