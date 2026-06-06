@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+<<<<<<< HEAD
 import 'package:get_storage/get_storage.dart';
 
 import 'main_navigation/main_controller.dart';
@@ -34,3 +35,24 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+=======
+import 'core/routes.dart';
+import 'main_navigation/main_screen.dart';
+
+void main() {
+  runApp(MovieApp());
+}
+
+class MovieApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: 'Movie App - Nhóm 4',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: MainNavigationScreen(),
+      getPages: AppRoutes.routes,
+    );
+  }
+}
+>>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d

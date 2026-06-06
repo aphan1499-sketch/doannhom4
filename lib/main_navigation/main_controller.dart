@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -49,3 +50,14 @@ class MainController extends GetxController {
     _selectedIndex.value = index;
   }
 }
+=======
+import 'package:get/get.dart';
+
+class MainController extends GetxController {
+  var currentIndex = 0.obs; // Quan sát chỉ số tab hiện tại
+
+  void changePage(int index) {
+    currentIndex.value = index;
+  }
+}
+>>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d

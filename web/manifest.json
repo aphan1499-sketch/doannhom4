@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "name": "doannhom4",
     "short_name": "doannhom4",
+=======
+    "name": "nhom4",
+    "short_name": "nhom4",
+>>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

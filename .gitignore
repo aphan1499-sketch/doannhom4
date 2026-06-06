@@ -43,5 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+<<<<<<< HEAD
 
 rtk.exe
+=======
+>>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d

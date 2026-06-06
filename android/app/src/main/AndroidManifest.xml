@@ -1,8 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<<<<<<< HEAD
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:label="doannhom4"
+=======
+<uses-permission android:name="android.permission.INTERNET"/>
+    <application
+        android:label="nhom4"
+>>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
