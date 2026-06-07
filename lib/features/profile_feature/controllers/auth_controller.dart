@@ -106,12 +106,22 @@ class AuthController extends GetxController {
 
   Future<void> _fetchUserData(String uid) async {
     try {
+      final authEmail = _auth.currentUser?.email;
       DocumentSnapshot doc = await _firestore
           .collection('users')
           .doc(uid)
           .get();
       if (doc.exists) {
         var data = doc.data() as Map<String, dynamic>;
+        if (authEmail != null &&
+            authEmail.isNotEmpty &&
+            data['email'] != authEmail) {
+          await _firestore.collection('users').doc(uid).set({
+            'email': authEmail,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+          userEmail.value = authEmail;
+        }
         currentUser.value = data['name'] ?? userEmail.value.split('@')[0];
         userPhone.value = data['phone'] ?? 'Chưa cập nhật';
         userBirthDate.value = data['dob'] ?? 'Chưa cập nhật';
@@ -576,24 +586,17 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> _ensureSocialUserDocument(User user, String fallbackName) async {
-    try {
-      final userRef = _firestore.collection('users').doc(user.uid);
-      final doc = await userRef.get();
-      if (doc.exists) return;
-
-      await userRef.set({
-        'uid': user.uid,
-        'email': user.email ?? '',
-        'name': user.displayName ?? user.email?.split('@')[0] ?? fallbackName,
-        'phone': user.phoneNumber ?? 'ChÆ°a cáº­p nháº­t',
-        'dob': 'ChÆ°a cáº­p nháº­t',
-        'gender': 'KhÃ´ng tiáº¿t lá»™',
-        'avatar': user.photoURL ?? 'assets/images/1.png',
-      }, SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('KhÃ´ng thá»ƒ táº¡o há»“ sÆ¡ social login: $e');
-    }
+  Future<void> _syncSocialUserDocument(User user, String fallbackName) async {
+    await _firestore.collection('users').doc(user.uid).set({
+      'uid': user.uid,
+      'email': user.email ?? '',
+      'name': user.displayName ?? user.email?.split('@')[0] ?? fallbackName,
+      'phone': user.phoneNumber ?? 'Chưa cập nhật',
+      'dob': 'Chưa cập nhật',
+      'gender': 'Không tiết lộ',
+      'avatar': user.photoURL ?? 'assets/images/1.png',
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   Future<void> signInWithGoogle() async {
@@ -618,6 +621,20 @@ class AuthController extends GetxController {
       User? user = userCredential.user;
 
       if (user != null) {
+        try {
+          await _syncSocialUserDocument(user, 'Người dùng Google');
+        } catch (e) {
+          debugPrint('Không thể đồng bộ hồ sơ Google: $e');
+          await _auth.signOut();
+          Get.snackbar(
+            'Lỗi đồng bộ',
+            'Không thể tạo hồ sơ người dùng Google. Vui lòng thử lại.',
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+
         // Kiểm tra xem user đã tồn tại trong Firestore chưa
         try {
           DocumentSnapshot doc = await _firestore
@@ -680,6 +697,20 @@ class AuthController extends GetxController {
         User? user = userCredential.user;
 
         if (user != null) {
+          try {
+            await _syncSocialUserDocument(user, 'Người dùng Facebook');
+          } catch (e) {
+            debugPrint('Không thể đồng bộ hồ sơ Facebook: $e');
+            await _auth.signOut();
+            Get.snackbar(
+              'Lỗi đồng bộ',
+              'Không thể tạo hồ sơ người dùng Facebook. Vui lòng thử lại.',
+              backgroundColor: Colors.redAccent,
+              colorText: Colors.white,
+            );
+            return;
+          }
+
           // Kiểm tra xem user đã tồn tại trong Firestore chưa
           DocumentSnapshot doc = await _firestore
               .collection('users')

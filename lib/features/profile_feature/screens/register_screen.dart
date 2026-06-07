@@ -298,6 +298,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: _inputDecoration(
                           hint: 'Xác nhận mật khẩu',
                           icon: Icons.lock_outline_rounded,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              authController.isPasswordHidden.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.grey[600],
+                              size: 20,
+                            ),
+                            onPressed: authController.togglePasswordVisibility,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {

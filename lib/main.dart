@@ -9,8 +9,12 @@ import 'features/profile_feature/controllers/auth_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables securely from .env
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (_) {
+    // The app can run without local sandbox payment keys.
+    dotenv.loadFromString(envString: '', isOptional: true);
+  }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 

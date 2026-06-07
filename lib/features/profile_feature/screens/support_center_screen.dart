@@ -1,9 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'support_chat_screen.dart';
 
 class SupportCenterScreen extends StatelessWidget {
   const SupportCenterScreen({super.key});
+
+  static const String _supportPhone = '19001234';
+  static const String _supportEmail = 'support@xemphim.vn';
+
+  Future<void> _launchPhoneCall() async {
+    final uri = Uri(scheme: 'tel', path: _supportPhone);
+    var launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+
+    if (!launched) {
+      await Clipboard.setData(const ClipboardData(text: _supportPhone));
+      Get.snackbar(
+        'Không thể mở trình gọi điện',
+        'Đã sao chép số tổng đài $_supportPhone.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  void _showCallSupportSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+              const SizedBox(height: 22),
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.phone_in_talk_outlined,
+                  color: Colors.green,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Tổng đài CSKH',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                '1900 1234 - hỗ trợ 8:00 đến 22:00',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Get.back();
+                    _launchPhoneCall();
+                  },
+                  icon: const Icon(Icons.call),
+                  label: const Text(
+                    'Gọi ngay',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchSupportEmail() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final body = [
+      'Xin chào bộ phận hỗ trợ CINEMAX,',
+      '',
+      'Tôi cần hỗ trợ về tài khoản/ứng dụng.',
+      '',
+      'Thông tin người dùng:',
+      'Email: ${user?.email ?? 'Chưa đăng nhập'}',
+      'UID: ${user?.uid ?? 'Không có'}',
+      '',
+      'Mô tả vấn đề:',
+      '',
+    ].join('\n');
+
+    final uri = Uri(
+      scheme: 'mailto',
+      path: _supportEmail,
+      queryParameters: {'subject': 'Hỗ trợ tài khoản CINEMAX', 'body': body},
+    );
+
+    var launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+
+    if (!launched) {
+      await Clipboard.setData(const ClipboardData(text: _supportEmail));
+      Get.snackbar(
+        'Không thể mở ứng dụng email',
+        'Đã sao chép email hỗ trợ $_supportEmail.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   Widget _buildCardWrapper(
     BuildContext context, {
@@ -172,15 +320,7 @@ class SupportCenterScreen extends StatelessWidget {
                     color: Colors.green,
                     size: 20,
                   ),
-                  onTap: () {
-                    Get.snackbar(
-                      'Đang gọi',
-                      'Đang kết nối tới tổng đài hỗ trợ...',
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.green,
-                      colorText: Colors.white,
-                    );
-                  },
+                  onTap: () => _showCallSupportSheet(context),
                 ),
                 _buildDivider(context),
                 _buildSupportTile(
@@ -194,15 +334,7 @@ class SupportCenterScreen extends StatelessWidget {
                     color: Colors.orange,
                     size: 20,
                   ),
-                  onTap: () {
-                    Get.snackbar(
-                      'Mở Email',
-                      'Đang chuyển hướng sang ứng dụng Mail...',
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.black.withOpacity(0.7),
-                      colorText: Colors.white,
-                    );
-                  },
+                  onTap: _launchSupportEmail,
                 ),
               ],
             ),

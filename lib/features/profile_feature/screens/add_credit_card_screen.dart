@@ -23,12 +23,11 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
   String _cardNumber = '•••• •••• •••• ••••';
   String _cardHolder = 'TÊN CHỦ THẺ';
   String _expiry = 'MM/YY';
-  String _cvv = '•••';
 
   @override
   void initState() {
     super.initState();
-    
+
     // Listeners to update the live preview credit card
     _cardNumberController.addListener(() {
       setState(() {
@@ -53,14 +52,6 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
             : _expiryController.text;
       });
     });
-
-    _cvvController.addListener(() {
-      setState(() {
-        _cvv = _cvvController.text.isEmpty
-            ? '•••'
-            : _cvvController.text;
-      });
-    });
   }
 
   @override
@@ -77,7 +68,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F6F8),
+      backgroundColor: isDark
+          ? const Color(0xFF121212)
+          : const Color(0xFFF5F6F8),
       appBar: AppBar(
         title: const Text(
           'Thêm thẻ tín dụng',
@@ -95,11 +88,13 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 12),
-              
+
               // 1. LIVE CREDIT CARD PREVIEW
               Builder(
                 builder: (context) {
-                  final bool isMaster = _cardNumber.startsWith('5') || _cardNumber.startsWith('2');
+                  final bool isMaster =
+                      _cardNumber.startsWith('5') ||
+                      _cardNumber.startsWith('2');
                   return Container(
                     width: double.infinity,
                     height: 190,
@@ -108,13 +103,21 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                       gradient: LinearGradient(
                         colors: isMaster
                             ? [const Color(0xFFC33764), const Color(0xFF1D2671)]
-                            : [const Color(0xFF0F2027), const Color(0xFF203A43), const Color(0xFF2C5364)],
+                            : [
+                                const Color(0xFF0F2027),
+                                const Color(0xFF203A43),
+                                const Color(0xFF2C5364),
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (isMaster ? const Color(0xFFC33764) : const Color(0xFF0F2027)).withOpacity(0.4),
+                          color:
+                              (isMaster
+                                      ? const Color(0xFFC33764)
+                                      : const Color(0xFF0F2027))
+                                  .withValues(alpha: 0.4),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -136,12 +139,17 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                                 height: 30,
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFFF2C94C), Color(0xFFF2994A)],
+                                    colors: [
+                                      Color(0xFFF2C94C),
+                                      Color(0xFFF2994A),
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
                                 ),
                                 child: Stack(
                                   children: [
@@ -150,7 +158,12 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                                         width: 24,
                                         height: 16,
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.black.withOpacity(0.15), width: 0.5),
+                                          border: Border.all(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            width: 0.5,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -159,7 +172,12 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                                         width: 12,
                                         height: 24,
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.black.withOpacity(0.15), width: 0.5),
+                                          border: Border.all(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            width: 0.5,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -196,7 +214,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                                     Text(
                                       'CHỦ THẺ',
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.5,
+                                        ),
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 1.0,
@@ -222,7 +242,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                                   Text(
                                     'HẾT HẠN',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.0,
@@ -246,9 +268,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                       ),
                     ),
                   );
-                }
+                },
               ),
-              
+
               const SizedBox(height: 32),
 
               // 2. INPUT FORM
@@ -261,7 +283,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                     TextFormField(
                       controller: _cardNumberController,
                       keyboardType: TextInputType.number,
-                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                       textCapitalization: TextCapitalization.none,
                       autocorrect: false,
                       enableSuggestions: false,
@@ -272,16 +296,24 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.credit_card_rounded),
                         labelText: 'Số thẻ tín dụng',
-                        labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                        labelStyle: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        fillColor: isDark
+                            ? const Color(0xFF1E1E1E)
+                            : Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: Colors.redAccent,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       validator: (value) {
@@ -301,7 +333,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                     TextFormField(
                       controller: _cardHolderController,
                       keyboardType: TextInputType.text,
-                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                       textCapitalization: TextCapitalization.characters,
                       autocorrect: false,
                       enableSuggestions: false,
@@ -311,16 +345,24 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.person_rounded),
                         labelText: 'Họ và tên chủ thẻ (Không dấu)',
-                        labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                        labelStyle: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        fillColor: isDark
+                            ? const Color(0xFF1E1E1E)
+                            : Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: Colors.redAccent,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       validator: (value) {
@@ -343,7 +385,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                           child: TextFormField(
                             controller: _expiryController,
                             keyboardType: TextInputType.number,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
                             textCapitalization: TextCapitalization.none,
                             autocorrect: false,
                             enableSuggestions: false,
@@ -352,18 +396,28 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                               ExpiryDateInputFormatter(),
                             ],
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.calendar_month_rounded),
+                              prefixIcon: const Icon(
+                                Icons.calendar_month_rounded,
+                              ),
                               labelText: 'Ngày hết hạn (MM/YY)',
-                              labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                              labelStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
                               filled: true,
-                              fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              fillColor: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
                               ),
                             ),
                             validator: (value) {
@@ -390,7 +444,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                             controller: _cvvController,
                             keyboardType: TextInputType.number,
                             obscureText: true,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
                             textCapitalization: TextCapitalization.none,
                             autocorrect: false,
                             enableSuggestions: false,
@@ -401,16 +457,24 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.security_rounded),
                               labelText: 'Mã bí mật (CVV)',
-                              labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                              labelStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
                               filled: true,
-                              fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              fillColor: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
                               ),
                             ),
                             validator: (value) {
@@ -426,7 +490,7 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 48),
 
                     // Nút xác nhận thêm thẻ
@@ -444,30 +508,48 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                         ),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            final rawCardNum = _cardNumberController.text.replaceAll(' ', '');
+                            final rawCardNum = _cardNumberController.text
+                                .replaceAll(' ', '');
                             // Mask card number
-                            final maskedCardNo = '•••• •••• •••• ${rawCardNum.substring(12)}';
-                            
-                            final bool isMaster = rawCardNum.startsWith('5') || rawCardNum.startsWith('2');
-                            final String cardBrand = isMaster ? 'mastercard' : 'visa';
-                            final String cardBrandName = isMaster ? 'Mastercard' : 'Visa';
+                            final maskedCardNo =
+                                '•••• •••• •••• ${rawCardNum.substring(12)}';
+
+                            final bool isMaster =
+                                rawCardNum.startsWith('5') ||
+                                rawCardNum.startsWith('2');
+                            final String cardBrand = isMaster
+                                ? 'mastercard'
+                                : 'visa';
+                            final String cardBrandName = isMaster
+                                ? 'Mastercard'
+                                : 'Visa';
 
                             authController.addPaymentMethod({
-                              'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                              'id': DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
                               'type': 'visa',
                               'cardNo': maskedCardNo,
                               'cardBrand': cardBrand,
-                              'cardHolder': _cardHolderController.text.trim().toUpperCase(),
+                              'cardHolder': _cardHolderController.text
+                                  .trim()
+                                  .toUpperCase(),
                               'expiry': _expiryController.text.trim(),
                               'isDefault': false,
                               'gradientColors': isMaster
-                                  ? [0xFFC33764, 0xFF1D2671] // Purple-Red for Mastercard
-                                  : [0xFF0F2027, 0xFF203A43, 0xFF2C5364], // Blue-Teal for Visa
+                                  ? [
+                                      0xFFC33764,
+                                      0xFF1D2671,
+                                    ] // Purple-Red for Mastercard
+                                  : [
+                                      0xFF0F2027,
+                                      0xFF203A43,
+                                      0xFF2C5364,
+                                    ], // Blue-Teal for Visa
                             });
 
                             Get.back();
                             Get.snackbar(
-                              'Thành công', 
+                              'Thành công',
                               'Đã liên kết thẻ $cardBrandName mới thành công!',
                               backgroundColor: Colors.green,
                               colorText: Colors.white,
@@ -502,10 +584,13 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
 
 class CardNumberInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var text = newValue.text.replaceAll(' ', '');
     if (text.length > 16) text = text.substring(0, 16);
-    
+
     var buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {
       buffer.write(text[i]);
@@ -514,7 +599,7 @@ class CardNumberInputFormatter extends TextInputFormatter {
         buffer.write(' ');
       }
     }
-    
+
     var string = buffer.toString();
     return newValue.copyWith(
       text: string,
@@ -525,10 +610,13 @@ class CardNumberInputFormatter extends TextInputFormatter {
 
 class ExpiryDateInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var text = newValue.text.replaceAll('/', '');
     if (text.length > 4) text = text.substring(0, 4);
-    
+
     var buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {
       buffer.write(text[i]);
@@ -537,7 +625,7 @@ class ExpiryDateInputFormatter extends TextInputFormatter {
         buffer.write('/');
       }
     }
-    
+
     var string = buffer.toString();
     return newValue.copyWith(
       text: string,
