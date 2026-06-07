@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum DemoPaymentMethodType { card, momo, zalopay }
+enum SubscriptionPaymentMethodType { card, momo, zalopay }
 
-class DemoPaymentMethod {
-  const DemoPaymentMethod({
+class SubscriptionPaymentMethod {
+  const SubscriptionPaymentMethod({
     required this.id,
     required this.type,
     required this.title,
@@ -16,23 +16,23 @@ class DemoPaymentMethod {
   });
 
   final String id;
-  final DemoPaymentMethodType type;
+  final SubscriptionPaymentMethodType type;
   final String title;
   final String maskedValue;
   final String status;
   final bool isDefault;
   final String? expiryDate;
 
-  DemoPaymentMethod copyWith({
+  SubscriptionPaymentMethod copyWith({
     String? id,
-    DemoPaymentMethodType? type,
+    SubscriptionPaymentMethodType? type,
     String? title,
     String? maskedValue,
     String? status,
     bool? isDefault,
     String? expiryDate,
   }) {
-    return DemoPaymentMethod(
+    return SubscriptionPaymentMethod(
       id: id ?? this.id,
       type: type ?? this.type,
       title: title ?? this.title,
@@ -55,12 +55,12 @@ class DemoPaymentMethod {
     };
   }
 
-  factory DemoPaymentMethod.fromJson(Map<String, dynamic> json) {
-    return DemoPaymentMethod(
+  factory SubscriptionPaymentMethod.fromJson(Map<String, dynamic> json) {
+    return SubscriptionPaymentMethod(
       id: json['id'] as String,
-      type: DemoPaymentMethodType.values.firstWhere(
+      type: SubscriptionPaymentMethodType.values.firstWhere(
         (type) => type.name == json['type'],
-        orElse: () => DemoPaymentMethodType.card,
+        orElse: () => SubscriptionPaymentMethodType.card,
       ),
       title: json['title'] as String,
       maskedValue: json['maskedValue'] as String,
@@ -71,10 +71,10 @@ class DemoPaymentMethod {
   }
 }
 
-class DemoPaymentMethodService {
-  static const String _storageKey = 'demo_subscription_payment_methods_v1';
+class SubscriptionPaymentMethodService {
+  static const String _storageKey = 'subscription_payment_methods_v1';
 
-  static Future<List<DemoPaymentMethod>> loadMethods() async {
+  static Future<List<SubscriptionPaymentMethod>> loadMethods() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_storageKey);
     if (raw == null || raw.isEmpty) {
@@ -87,7 +87,9 @@ class DemoPaymentMethodService {
       final decoded = jsonDecode(raw) as List<dynamic>;
       final methods = decoded
           .map(
-            (item) => DemoPaymentMethod.fromJson(item as Map<String, dynamic>),
+            (item) => SubscriptionPaymentMethod.fromJson(
+              item as Map<String, dynamic>,
+            ),
           )
           .toList();
       return _ensureOneDefault(methods);
@@ -110,9 +112,9 @@ class DemoPaymentMethodService {
     final isFirstMethod = methods.isEmpty;
 
     methods.add(
-      DemoPaymentMethod(
+      SubscriptionPaymentMethod(
         id: 'card_${DateTime.now().millisecondsSinceEpoch}',
-        type: DemoPaymentMethodType.card,
+        type: SubscriptionPaymentMethodType.card,
         title: 'Thẻ Visa/MasterCard',
         maskedValue: '••••  ••••  ••••  $last4',
         expiryDate: expiryDate,
@@ -125,7 +127,7 @@ class DemoPaymentMethodService {
   }
 
   static Future<void> addWallet({
-    required DemoPaymentMethodType type,
+    required SubscriptionPaymentMethodType type,
     required String phoneNumber,
   }) async {
     final methods = await loadMethods();
@@ -135,10 +137,10 @@ class DemoPaymentMethodService {
         ? digits.substring(digits.length - 3)
         : '321';
     final isFirstMethod = methods.isEmpty;
-    final isMomo = type == DemoPaymentMethodType.momo;
+    final isMomo = type == SubscriptionPaymentMethodType.momo;
 
     methods.add(
-      DemoPaymentMethod(
+      SubscriptionPaymentMethod(
         id: '${type.name}_${DateTime.now().millisecondsSinceEpoch}',
         type: type,
         title: isMomo ? 'Ví điện tử MoMo' : 'Ví điện tử ZaloPay',
@@ -166,14 +168,16 @@ class DemoPaymentMethodService {
     await _saveMethods(_ensureOneDefault(filtered));
   }
 
-  static Future<void> _saveMethods(List<DemoPaymentMethod> methods) async {
+  static Future<void> _saveMethods(
+    List<SubscriptionPaymentMethod> methods,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = jsonEncode(methods.map((method) => method.toJson()).toList());
     await prefs.setString(_storageKey, raw);
   }
 
-  static List<DemoPaymentMethod> _ensureOneDefault(
-    List<DemoPaymentMethod> methods,
+  static List<SubscriptionPaymentMethod> _ensureOneDefault(
+    List<SubscriptionPaymentMethod> methods,
   ) {
     if (methods.isEmpty) return methods;
     if (methods.any((method) => method.isDefault)) return methods;
@@ -181,20 +185,20 @@ class DemoPaymentMethodService {
     return [methods.first.copyWith(isDefault: true), ...methods.skip(1)];
   }
 
-  static List<DemoPaymentMethod> _seedMethods() {
+  static List<SubscriptionPaymentMethod> _seedMethods() {
     return const [
-      DemoPaymentMethod(
+      SubscriptionPaymentMethod(
         id: 'seed_card_4242',
-        type: DemoPaymentMethodType.card,
+        type: SubscriptionPaymentMethodType.card,
         title: 'Thẻ Visa/MasterCard',
         maskedValue: '••••  ••••  ••••  4242',
         expiryDate: '12/28',
         status: 'Đã xác thực',
         isDefault: true,
       ),
-      DemoPaymentMethod(
+      SubscriptionPaymentMethod(
         id: 'seed_momo_321',
-        type: DemoPaymentMethodType.momo,
+        type: SubscriptionPaymentMethodType.momo,
         title: 'Ví điện tử MoMo',
         maskedValue: '098••••321',
         status: 'Đã liên kết',

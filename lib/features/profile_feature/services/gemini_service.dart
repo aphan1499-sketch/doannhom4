@@ -136,7 +136,7 @@ class GeminiService {
       'co phim gi',
       'rap chieu',
     ])) {
-      return 'Hiện demo HUIT Cinema có các phim: Lật Mặt 7: Một Điều Ước, Dune: Cát Đấu Phần Hai, Kung Fu Panda 4 và Mai. Anh/Chị có thể vào chi tiết phim để xem suất chiếu, phòng chiếu và giá vé chính xác.';
+      return 'Hiện HUIT Cinema có các phim: Lật Mặt 7: Một Điều Ước, Dune: Cát Đấu Phần Hai, Kung Fu Panda 4 và Mai. Anh/Chị có thể vào chi tiết phim để xem suất chiếu, phòng chiếu và giá vé chính xác.';
     }
 
     if (_hasAny(text, ['vip', 'premium', 'goi phim', 'goi xem phim'])) {
@@ -153,7 +153,7 @@ class GeminiService {
       'the ngan hang',
       'phuong thuc',
     ])) {
-      return 'Phần thanh toán hiện hỗ trợ demo thẻ quốc tế và ví điện tử. Anh/Chị có thể vào Cá nhân > Phương thức thanh toán để quản lý thẻ/ví, hoặc vào Đăng ký Gói VIP Streaming để thử luồng thanh toán gói.';
+      return 'Phần thanh toán hiện hỗ trợ thẻ quốc tế và ví điện tử. Anh/Chị có thể vào Cá nhân > Phương thức thanh toán để quản lý thẻ/ví, hoặc vào Đăng ký Gói VIP Streaming để thực hiện thanh toán gói.';
     }
 
     if (_hasAny(text, [

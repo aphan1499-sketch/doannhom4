@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../services/demo_payment_method_service.dart';
+import '../services/subscription_payment_method_service.dart';
 
 class ManagePaymentMethodsScreen extends StatefulWidget {
   const ManagePaymentMethodsScreen({super.key});
@@ -13,7 +13,7 @@ class ManagePaymentMethodsScreen extends StatefulWidget {
 
 class _ManagePaymentMethodsScreenState
     extends State<ManagePaymentMethodsScreen> {
-  List<DemoPaymentMethod> _methods = const [];
+  List<SubscriptionPaymentMethod> _methods = const [];
   bool _isLoading = true;
 
   @override
@@ -23,7 +23,7 @@ class _ManagePaymentMethodsScreenState
   }
 
   Future<void> _loadMethods() async {
-    final methods = await DemoPaymentMethodService.loadMethods();
+    final methods = await SubscriptionPaymentMethodService.loadMethods();
     if (!mounted) return;
     setState(() {
       _methods = methods;
@@ -31,8 +31,8 @@ class _ManagePaymentMethodsScreenState
     });
   }
 
-  Future<void> _setDefault(DemoPaymentMethod method) async {
-    await DemoPaymentMethodService.setDefault(method.id);
+  Future<void> _setDefault(SubscriptionPaymentMethod method) async {
+    await SubscriptionPaymentMethodService.setDefault(method.id);
     await _loadMethods();
     Get.snackbar(
       'Đã cập nhật',
@@ -44,8 +44,8 @@ class _ManagePaymentMethodsScreenState
     );
   }
 
-  Future<void> _removeMethod(DemoPaymentMethod method) async {
-    await DemoPaymentMethodService.remove(method.id);
+  Future<void> _removeMethod(SubscriptionPaymentMethod method) async {
+    await SubscriptionPaymentMethodService.remove(method.id);
     await _loadMethods();
     Get.snackbar(
       'Đã xoá',
@@ -57,7 +57,7 @@ class _ManagePaymentMethodsScreenState
     );
   }
 
-  void _showActionBottomSheet(DemoPaymentMethod method) {
+  void _showActionBottomSheet(SubscriptionPaymentMethod method) {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -154,13 +154,13 @@ class _ManagePaymentMethodsScreenState
       _isLoading = true;
     });
 
-    if (request.type == DemoPaymentMethodType.card) {
-      await DemoPaymentMethodService.addCard(
+    if (request.type == SubscriptionPaymentMethodType.card) {
+      await SubscriptionPaymentMethodService.addCard(
         cardNumber: request.cardNumber,
         expiryDate: request.expiryDate,
       );
     } else {
-      await DemoPaymentMethodService.addWallet(
+      await SubscriptionPaymentMethodService.addWallet(
         type: request.type,
         phoneNumber: request.phoneNumber,
       );
@@ -169,7 +169,7 @@ class _ManagePaymentMethodsScreenState
     await _loadMethods();
     Get.snackbar(
       'Thành công',
-      'Đã thêm phương thức thanh toán demo.',
+      'Đã thêm phương thức thanh toán.',
       backgroundColor: Colors.green,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -263,7 +263,7 @@ class _ManagePaymentMethodsScreenState
   Widget _buildDefaultSummary() {
     final defaultMethod = _methods
         .where((method) => method.isDefault)
-        .cast<DemoPaymentMethod?>()
+        .cast<SubscriptionPaymentMethod?>()
         .firstOrNull;
 
     return Container(
@@ -338,7 +338,7 @@ class _ManagePaymentMethodsScreenState
           ),
           SizedBox(height: 6),
           Text(
-            'Thêm thẻ hoặc ví điện tử demo để dùng cho gói VIP.',
+            'Thêm thẻ hoặc ví điện tử để dùng cho gói VIP.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
@@ -355,7 +355,7 @@ class PaymentMethodCard extends StatelessWidget {
     required this.onMorePressed,
   });
 
-  final DemoPaymentMethod method;
+  final SubscriptionPaymentMethod method;
   final VoidCallback onMorePressed;
 
   @override
@@ -388,7 +388,7 @@ class PaymentMethodCard extends StatelessWidget {
             right: -10,
             bottom: -20,
             child: Icon(
-              method.type == DemoPaymentMethodType.card
+              method.type == SubscriptionPaymentMethodType.card
                   ? Icons.credit_card_rounded
                   : Icons.account_balance_wallet_rounded,
               size: 120,
@@ -448,20 +448,20 @@ class PaymentMethodCard extends StatelessWidget {
     );
   }
 
-  static List<Color> _gradientFor(DemoPaymentMethodType type) {
+  static List<Color> _gradientFor(SubscriptionPaymentMethodType type) {
     switch (type) {
-      case DemoPaymentMethodType.card:
+      case SubscriptionPaymentMethodType.card:
         return const [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)];
-      case DemoPaymentMethodType.momo:
+      case SubscriptionPaymentMethodType.momo:
         return const [Color(0xFF800045), Color(0xFFA50064)];
-      case DemoPaymentMethodType.zalopay:
+      case SubscriptionPaymentMethodType.zalopay:
         return const [Color(0xFF005BAA), Color(0xFF00A25B)];
     }
   }
 
-  static Widget _buildLogo(DemoPaymentMethodType type) {
+  static Widget _buildLogo(SubscriptionPaymentMethodType type) {
     switch (type) {
-      case DemoPaymentMethodType.card:
+      case SubscriptionPaymentMethodType.card:
         return const Text(
           'VISA',
           style: TextStyle(
@@ -472,9 +472,9 @@ class PaymentMethodCard extends StatelessWidget {
             letterSpacing: 0.5,
           ),
         );
-      case DemoPaymentMethodType.momo:
+      case SubscriptionPaymentMethodType.momo:
         return _WalletLogo(label: 'momo', color: Color(0xFFA50064));
-      case DemoPaymentMethodType.zalopay:
+      case SubscriptionPaymentMethodType.zalopay:
         return _WalletLogo(label: 'ZaloPay', color: Color(0xFF0088FF));
     }
   }
@@ -548,7 +548,7 @@ class AddPaymentMethodRequest {
     this.phoneNumber = '',
   });
 
-  final DemoPaymentMethodType type;
+  final SubscriptionPaymentMethodType type;
   final String cardNumber;
   final String expiryDate;
   final String phoneNumber;
@@ -586,7 +586,7 @@ class _AddPaymentMethodBottomSheetState
     if (digits.length < 12 || _expiryController.text.trim().isEmpty) {
       Get.snackbar(
         'Thiếu thông tin',
-        'Vui lòng nhập số thẻ demo và hạn dùng.',
+        'Vui lòng nhập số thẻ và hạn dùng.',
         backgroundColor: Colors.orange,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -597,7 +597,7 @@ class _AddPaymentMethodBottomSheetState
     Navigator.pop(
       context,
       AddPaymentMethodRequest(
-        type: DemoPaymentMethodType.card,
+        type: SubscriptionPaymentMethodType.card,
         cardNumber: _cardNumberController.text,
         expiryDate: _expiryController.text.trim(),
       ),
@@ -609,7 +609,7 @@ class _AddPaymentMethodBottomSheetState
     if (digits.length < 9) {
       Get.snackbar(
         'Thiếu thông tin',
-        'Vui lòng nhập số điện thoại ví demo.',
+        'Vui lòng nhập số điện thoại ví.',
         backgroundColor: Colors.orange,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -621,8 +621,8 @@ class _AddPaymentMethodBottomSheetState
       context,
       AddPaymentMethodRequest(
         type: _selectedWalletIndex == 0
-            ? DemoPaymentMethodType.momo
-            : DemoPaymentMethodType.zalopay,
+            ? SubscriptionPaymentMethodType.momo
+            : SubscriptionPaymentMethodType.zalopay,
         phoneNumber: _phoneController.text,
       ),
     );
@@ -706,7 +706,7 @@ class _AddPaymentMethodBottomSheetState
       children: [
         _buildTextField(
           controller: _cardNumberController,
-          label: 'Số thẻ demo',
+          label: 'Số thẻ',
           hint: '4111 1111 1111 4242',
           keyboardType: TextInputType.number,
           icon: Icons.payment,
@@ -738,11 +738,11 @@ class _AddPaymentMethodBottomSheetState
         ),
         const SizedBox(height: 12),
         const Text(
-          'Demo chỉ lưu 4 số cuối và hạn dùng, không lưu số thẻ đầy đủ.',
+          'Hệ thống chỉ lưu 4 số cuối và hạn dùng, không lưu số thẻ đầy đủ.',
           style: TextStyle(color: Colors.grey, fontSize: 11, height: 1.4),
         ),
         const Spacer(),
-        _buildPrimaryButton('Lưu thẻ demo', _submitCard),
+        _buildPrimaryButton('Lưu thẻ', _submitCard),
       ],
     );
   }
@@ -767,13 +767,13 @@ class _AddPaymentMethodBottomSheetState
         const SizedBox(height: 16),
         _buildTextField(
           controller: _phoneController,
-          label: 'Số điện thoại demo',
+          label: 'Số điện thoại',
           hint: '0981234321',
           keyboardType: TextInputType.phone,
           icon: Icons.phone_android_rounded,
         ),
         const Spacer(),
-        _buildPrimaryButton('Liên kết ví demo', _submitWallet),
+        _buildPrimaryButton('Liên kết ví', _submitWallet),
       ],
     );
   }
