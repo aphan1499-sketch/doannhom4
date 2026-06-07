@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: doannhom4
-=======
 name: nhom4
->>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -32,17 +28,9 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-<<<<<<< HEAD
-  flutter:
-    sdk: flutter
-  http: ^1.1.0
-=======
-  http: ^1.1.0
-  get: ^4.6.6
   flutter:
     sdk: flutter
     # Quản lý trạng thái, chuyển trang (Route) và Snackbar/Dialog nhanh
->>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
   get: ^4.6.6
 
   # Gọi API từ OPhim 
@@ -61,10 +49,21 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-<<<<<<< HEAD
-  get_storage: ^2.1.1
-=======
->>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
+  mailer: ^7.1.0
+  image_picker: ^1.2.1
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.1.0
+  device_info_plus: ^12.4.0
+  firebase_messaging: ^16.2.2
+  google_generative_ai: ^0.4.7
+  flutter_dotenv: ^6.0.1
+  http: ^1.2.0
+  crypto: ^3.0.3
+  url_launcher: ^6.3.0
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -77,10 +76,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-<<<<<<< HEAD
-=======
-
->>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -91,13 +86,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  assets:
-<<<<<<< HEAD
-    - assets/images/
 
-=======
-    - assets/images/nen.png
->>>>>>> c7c2acfbbfc0e9bba6569114d267fa8a20b87f5d
+  assets:
+    - assets/images/
+    - .env
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

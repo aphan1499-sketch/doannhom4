@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">nhom4</string>
+    <string name="facebook_app_id">1170025788562602</string>
+    <string name="fb_login_protocol_scheme">fb1170025788562602</string>
+    <string name="facebook_client_token">d609793bc1b93a1b587b5342c011dc57</string>
+</resources>
