@@ -8,6 +8,8 @@ import 'package:nhom4/features/home_feature/controllers/home_controller.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PlayerScreen extends StatefulWidget {
+  const PlayerScreen({super.key});
+
   @override
   State<PlayerScreen> createState() => _PlayerScreenState();
 }

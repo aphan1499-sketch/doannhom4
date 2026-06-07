@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:nhom4/features/home_feature/controllers/home_controller.dart';
 
 class DetailScreen extends StatefulWidget {
+  const DetailScreen({super.key});
+
   @override
   State<DetailScreen> createState() => _DetailScreenState();
 }
@@ -239,7 +241,7 @@ class _DetailScreenState extends State<DetailScreen> {
         if (year.isNotEmpty) _infoChip(Icons.calendar_today, year),
 
         if (runtime != null && runtime > 0)
-          _infoChip(Icons.access_time, '${runtime} phút'),
+          _infoChip(Icons.access_time, '$runtime phút'),
 
         if (genres.isNotEmpty) _infoChip(Icons.category, genres),
       ],

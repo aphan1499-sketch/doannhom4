@@ -6,6 +6,8 @@ class NotificationScreen extends StatelessWidget {
   // Danh sách thông báo lưu tạm (dùng chung với HomeController)
   final RxList<Movie> notifiedMovies = Get.find<HomeController>().newList;
 
+  const NotificationScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

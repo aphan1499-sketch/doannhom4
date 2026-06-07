@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:nhom4/core/notification_service.dart';
 import 'package:nhom4/features/home_feature/screens/notification_screen.dart';
 
 class Movie {
