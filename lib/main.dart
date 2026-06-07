@@ -6,13 +6,15 @@ import 'package:nhom4/core/notification_service.dart';
 import 'package:get_storage/get_storage.dart';
 import 'main_navigation/main_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.init();
   await GetStorage.init();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   Get.put(MainController(), permanent: true);
   runApp(MovieApp());
 }
