@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nhom4/features/home_feature/screens/home_screen.dart';
+import 'package:nhom4/features/profile_feature/screens/profile_screen.dart';
 import 'main_controller.dart';
 import 'package:nhom4/features/browse_feature/screens/browse_screen.dart';
 
@@ -12,10 +13,10 @@ class MainNavigationScreen extends StatelessWidget {
     HomeScreen(),  
     BrowseScreen(),
     Center(child: Text("Library - Thành viên 3")),
-    Center(child: Text("Profile - Thành viên 4")),
+    ProfileScreen(),
   ];
 
-  const MainNavigationScreen({super.key});
+  MainNavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

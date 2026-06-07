@@ -1,12 +1,117 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nhom4/features/home_feature/controllers/home_controller.dart';
 
-class NotificationScreen extends StatelessWidget {
-  // Danh sách thông báo lưu tạm (dùng chung với HomeController)
-  final RxList<Movie> notifiedMovies = Get.find<HomeController>().newList;
+// ─────────────────────────────────────────────────────────────
+//  NotificationHistory  –  lưu đề xuất phim theo ngày
+// ─────────────────────────────────────────────────────────────
+class NotificationHistory {
+  // Key lưu trong SharedPreferences
+  static const _keyDate = 'notif_date';       // ngày đã generate (yyyy-MM-dd)
+  static const _keySlugs = 'notif_slugs';     // slug 3 phim, cách nhau ','
 
+  /// Danh sách 3 phim đề xuất hôm nay (observable để Obx tự rebuild)
+  static final RxList<Movie> dailyMovies = <Movie>[].obs;
+
+  /// Gọi khi app khởi động hoặc khi mở màn hình thông báo.
+  /// Nếu hôm nay chưa có đề xuất → random 3 phim từ [allMovies] và lưu.
+  /// Nếu đã có → load lại từ SharedPreferences.
+  static Future<void> refreshIfNeeded(List<Movie> allMovies) async {
+    if (allMovies.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final today = _todayString();
+    final savedDate = prefs.getString(_keyDate) ?? '';
+
+    if (savedDate == today) {
+      // Hôm nay đã có đề xuất → load lại theo slug đã lưu
+      final savedSlugs = (prefs.getString(_keySlugs) ?? '').split(',');
+      final loaded = savedSlugs
+          .map((slug) => allMovies.firstWhereOrNull((m) => m.slug == slug))
+          .whereType<Movie>()
+          .toList();
+
+      if (loaded.isNotEmpty) {
+        dailyMovies.assignAll(loaded);
+        return;
+      }
+      // Nếu slug không khớp (phim đã hết trong api) → generate lại
+    }
+
+    // Ngày mới hoặc chưa có → random 3 phim
+    final picks = _pickRandom(allMovies, 3);
+    dailyMovies.assignAll(picks);
+
+    // Lưu vào SharedPreferences
+    await prefs.setString(_keyDate, today);
+    await prefs.setString(_keySlugs, picks.map((m) => m.slug).join(','));
+  }
+
+  /// Xóa thủ công (nút "Làm mới đề xuất" – debug / UX)
+  static Future<void> clearAndRefresh(List<Movie> allMovies) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyDate);
+    await prefs.remove(_keySlugs);
+    await refreshIfNeeded(allMovies);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────
+
+  static String _todayString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  static List<Movie> _pickRandom(List<Movie> source, int count) {
+    final pool = List<Movie>.from(source);
+    pool.shuffle(Random());
+    return pool.take(count).toList();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  NotificationScreen
+// ─────────────────────────────────────────────────────────────
+class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
+
+  @override
+  State<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  final HomeController _homeController = Get.find<HomeController>();
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load / generate đề xuất ngay khi mở màn hình
+    _load();
+  }
+
+  Future<void> _load() async {
+    await NotificationHistory.refreshIfNeeded(_homeController.newList);
+  }
+
+  Future<void> _forceRefresh() async {
+    setState(() => _isRefreshing = true);
+    await NotificationHistory.clearAndRefresh(_homeController.newList);
+    setState(() => _isRefreshing = false);
+  }
+
+  // Ngày hôm nay hiển thị kiểu "Thứ X, DD/MM/YYYY"
+  String get _todayLabel {
+    final now = DateTime.now();
+    const weekdays = [
+      'Thứ Hai', 'Thứ Ba', 'Thứ Tư',
+      'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'
+    ];
+    final wd = weekdays[now.weekday - 1];
+    return '$wd, ${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,181 +129,358 @@ class NotificationScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
-          // Nút xóa lịch sử
-          TextButton.icon(
-            onPressed: () {
-              Get.dialog(
-                AlertDialog(
-                  backgroundColor: Colors.grey[900],
-                  title: const Text('Xóa thông báo',
-                      style: TextStyle(color: Colors.white)),
-                  content: const Text('Xóa toàn bộ lịch sử thông báo?',
-                      style: TextStyle(color: Colors.grey)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Hủy',
-                          style: TextStyle(color: Colors.grey)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        NotificationHistory.clear();
-                        Get.back();
-                      },
-                      child: const Text('Xóa',
-                          style: TextStyle(color: Colors.redAccent)),
-                    ),
-                  ],
-                ),
-              );
-            },
-            icon: const Icon(Icons.delete_outline,
-                color: Colors.redAccent, size: 18),
-            label: const Text('Xóa tất cả',
-                style: TextStyle(color: Colors.redAccent, fontSize: 13)),
+          // Nút làm mới (debug / cho phép người dùng refresh thủ công)
+          IconButton(
+            tooltip: 'Làm mới đề xuất',
+            onPressed: _isRefreshing ? null : _forceRefresh,
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        color: Colors.redAccent, strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh, color: Colors.white70, size: 20),
           ),
         ],
       ),
       body: Obx(() {
-        final history = NotificationHistory.list;
-        if (history.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.notifications_off_outlined,
-                    color: Colors.grey[700], size: 60),
-                const SizedBox(height: 12),
-                Text('Chưa có thông báo nào',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 15)),
-              ],
-            ),
+        final movies = NotificationHistory.dailyMovies;
+
+        if (movies.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.redAccent),
           );
         }
 
-        return ListView.builder(
-          itemCount: history.length,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemBuilder: (context, index) {
-            // Hiển thị mới nhất trên đầu
-            final movie = history[history.length - 1 - index];
-            return _buildNotificationItem(movie);
-          },
+        return CustomScrollView(
+          slivers: [
+            // ── Header "Đề xuất hôm nay" ──
+            SliverToBoxAdapter(
+              child: _buildHeader(),
+            ),
+
+            // ── 3 card phim đề xuất (dọc, giống YouTube) ──
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildMovieCard(movies[index], index + 1),
+                childCount: movies.length,
+              ),
+            ),
+
+            // ── Footer note ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        color: Colors.grey, size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Đề xuất được làm mới mỗi ngày',
+                      style:
+                          TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       }),
     );
   }
 
-  Widget _buildNotificationItem(Movie movie) {
+  // ── Header ───────────────────────────────────────────────
+
+  Widget _buildHeader() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(15, 12, 15, 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.redAccent.withOpacity(0.15), Colors.transparent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.redAccent.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.local_fire_department,
+                color: Colors.redAccent, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🎬 Đề xuất hôm nay cho bạn',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  _todayLabel,
+                  style:
+                      TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          // Badge số lượng
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              '3 phim',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Movie card (kiểu YouTube) ─────────────────────────────
+
+  Widget _buildMovieCard(Movie movie, int rank) {
     return GestureDetector(
       onTap: () => Get.toNamed('/detail', arguments: movie),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
         decoration: BoxDecoration(
           color: Colors.grey[900],
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey[800]!),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ảnh phim
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: movie.thumbUrl.isNotEmpty
-                  ? Image.network(
+            // ── Thumbnail wide (16:9 style) ──
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(14)),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 7,
+                    child: movie.posterUrl.isNotEmpty
+                        ? Image.network(
+                            movie.posterUrl.replaceAll('w300', 'w780'),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Image.network(
+                              movie.thumbUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  _placeholderBox(),
+                            ),
+                          )
+                        : Image.network(
+                            movie.thumbUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _placeholderBox(),
+                          ),
+                  ),
+                ),
+                // Gradient overlay bên dưới thumbnail
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(14)),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.55),
+                          ],
+                          stops: const [0.5, 1.0],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Badge số thứ tự
+                Positioned(
+                  top: 10,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '#$rank ĐỀ XUẤT',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                // Play button ở giữa
+                Positioned.fill(
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.play_arrow,
+                          color: Colors.white, size: 28),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // ── Info row (thumbnail kèm text, giống YouTube) ──
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Thumbnail nhỏ bên trái
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(
                       movie.thumbUrl,
-                      width: 60,
-                      height: 80,
+                      width: 52,
+                      height: 70,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        width: 60,
-                        height: 80,
+                        width: 52,
+                        height: 70,
                         color: Colors.grey[800],
                         child: const Icon(Icons.movie, color: Colors.grey),
                       ),
-                    )
-                  : Container(
-                      width: 60,
-                      height: 80,
-                      color: Colors.grey[800],
-                      child: const Icon(Icons.movie, color: Colors.grey),
                     ),
-            ),
-            const SizedBox(width: 12),
+                  ),
+                  const SizedBox(width: 12),
 
-            // Thông tin
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(4),
+                  // Thông tin
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Tiêu đề phim
+                        Text(
+                          movie.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        child: const Text('MỚI',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('Phim mới cập nhật',
-                          style:
-                              TextStyle(color: Colors.grey, fontSize: 11)),
-                    ],
+                        const SizedBox(height: 6),
+
+                        // Rating + label "Phim đề xuất"
+                        Row(
+                          children: [
+                            const Icon(Icons.star,
+                                color: Colors.amber, size: 13),
+                            const SizedBox(width: 3),
+                            Text(
+                              movie.rating > 0
+                                  ? movie.rating.toStringAsFixed(1)
+                                  : 'N/A',
+                              style: const TextStyle(
+                                  color: Colors.amber, fontSize: 12),
+                            ),
+                            const SizedBox(width: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withOpacity(0.15),
+                                border: Border.all(
+                                    color: Colors.redAccent.withOpacity(0.4)),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'Gợi ý',
+                                style: TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Nút xem ngay
+                        GestureDetector(
+                          onTap: () =>
+                              Get.toNamed('/detail', arguments: movie),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.play_arrow,
+                                    color: Colors.white, size: 14),
+                                SizedBox(width: 4),
+                                Text('Xem ngay',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    movie.name,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 13),
-                      const SizedBox(width: 3),
-                      Text(
-                        movie.rating > 0
-                            ? movie.rating.toStringAsFixed(1)
-                            : 'N/A',
-                        style: const TextStyle(
-                            color: Colors.amber, fontSize: 12),
-                      ),
-                    ],
-                  ),
+
+                  const Icon(Icons.chevron_right, color: Colors.grey),
                 ],
               ),
             ),
-
-            const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),
       ),
     );
   }
-}
 
-// Lưu lịch sử thông báo toàn cục
-class NotificationHistory {
-  static final RxList<Movie> list = <Movie>[].obs;
-
-  static void add(Movie movie) {
-    // Tránh trùng
-    if (!list.any((m) => m.slug == movie.slug)) {
-      list.add(movie);
-    }
-  }
-
-  static void clear() => list.clear();
+  Widget _placeholderBox() => Container(
+        color: Colors.grey[850],
+        child: const Center(
+            child: Icon(Icons.movie, color: Colors.grey, size: 36)),
+      );
 }

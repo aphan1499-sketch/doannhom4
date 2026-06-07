@@ -38,7 +38,7 @@ class MainController extends GetxController {
     HomeScreen(),
    BrowseScreen(), 
     const WatchlistScreen(),
-    const ProfileScreen(),
+   ProfileScreen(),
   ];
   var currentIndex = 0.obs; // Quan sát chỉ số tab hiện tại
 

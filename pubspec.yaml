@@ -60,7 +60,21 @@ dependencies:
   share_plus: ^10.1.4
 
   get_storage: ^2.1.1
-  
+  #Tài khoản
+  mailer: ^7.1.0
+  image_picker: ^1.2.1
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.1.0
+  device_info_plus: ^12.4.0
+  firebase_messaging: ^16.2.2
+  google_generative_ai: ^0.4.7
+  flutter_dotenv: ^6.0.1
+  crypto: ^3.0.3
+  url_launcher: ^6.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
